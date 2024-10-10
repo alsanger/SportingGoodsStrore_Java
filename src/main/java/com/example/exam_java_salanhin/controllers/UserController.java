@@ -90,4 +90,52 @@ public class UserController {
         userService.saveUser(user);
         return "redirect:/";
     }
+
+    @GetMapping("/public/user/profileUser")
+    public ModelAndView profileUser(@RequestParam(required = false) Long id) {
+        ModelAndView modelAndView = new ModelAndView("user/profileUser");
+        User user;
+
+        if (id != null) {
+            user = userService.getUserById(id).orElse(null);
+        } else {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            user = (User) authentication.getPrincipal(); // Получаем текущего пользователя
+        }
+
+        if (user != null) {
+            modelAndView.addObject("user", user);
+        } else {
+            modelAndView.addObject("error", "User not found");
+            modelAndView.setViewName("error"); // или другая страница ошибки
+        }
+        return modelAndView;
+    }
+
+    @GetMapping("/public/user/update")
+    public ModelAndView updateUserForm(@RequestParam(required = false) Long id) {
+        ModelAndView modelAndView = new ModelAndView("user/updateUser");
+        User user;
+
+        if (id != null) {
+            user = userService.getUserById(id).orElse(null);
+        } else {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            user = (User) authentication.getPrincipal();
+        }
+
+        if (user != null) {
+            modelAndView.addObject("user", user);
+        } else {
+            modelAndView.addObject("error", "User not found");
+            modelAndView.setViewName("user/updateUser");
+        }
+        return modelAndView;
+    }
+
+    @PostMapping("/public/user/update")
+    public ModelAndView updateUser(@ModelAttribute User updatedUser) {
+        return userService.updateUser(updatedUser.getUserId(), updatedUser);
+    }
+
 }

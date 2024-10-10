@@ -3,9 +3,6 @@ package com.example.exam_java_salanhin.services.user;
 import com.example.exam_java_salanhin.models.User;
 import com.example.exam_java_salanhin.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
@@ -69,14 +66,14 @@ public class UserService {
 
         if (userValidationService.isUserExists(updatedUser)) {
             modelAndView.addObject("error", "A user with this email or phone number already exists.");
-            modelAndView.setViewName("user/editUser");
+            modelAndView.setViewName("updateUser");
             return modelAndView;
         }
 
         String validationError = userValidationService.validateUserData(updatedUser);
         if (validationError != null) {
             modelAndView.addObject("error", validationError);
-            modelAndView.setViewName("user/editUser");
+            modelAndView.setViewName("updateUser");
             return modelAndView;
         }
 
@@ -94,7 +91,7 @@ public class UserService {
             modelAndView.setViewName("redirect:/user/profileUser");
         } else {
             modelAndView.addObject("error", "Failed to update user.");
-            modelAndView.setViewName("user/editUser");
+            modelAndView.setViewName("updateUser");
         }
 
         return modelAndView;
