@@ -22,7 +22,7 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long id;
 
     @Column(unique = true)
     private String login;
@@ -40,18 +40,15 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String email;
 
-    @Enumerated(EnumType.STRING)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
     private Role role;
 
     private LocalDateTime createdAt;
 
-    public enum Role {
-        USER, ADMIN
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(() -> "ROLE_" + this.role.name());
+        return Collections.singletonList(role);
     }
 
     @Override

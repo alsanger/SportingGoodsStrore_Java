@@ -17,7 +17,7 @@ public class BlockedUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long blockId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

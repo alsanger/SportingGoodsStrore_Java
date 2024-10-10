@@ -1,16 +1,19 @@
 package com.example.exam_java_salanhin.controllers;
 
+import com.example.exam_java_salanhin.models.Role;
 import com.example.exam_java_salanhin.models.User;
 import com.example.exam_java_salanhin.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,40 +41,10 @@ public class UserController {
             return modelAndView;
         }
 
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-
-        //Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        System.out.println("User authenticated: " + authentication.getName());
-
         modelAndView.setViewName("redirect:/");
         return modelAndView;
     }
-//    @PostMapping("/public/user/login")
-//    public ModelAndView loginUser(@RequestParam("login") String login,
-//                                  @RequestParam("password") String password) {
-//        ModelAndView modelAndView = new ModelAndView();
-//
-//        User user = userService.authenticateUser(login, password);
-//        if (user == null) {
-//            modelAndView.addObject("error", "Invalid login or password");
-//            modelAndView.setViewName("user/login");
-//            return modelAndView;
-//        }
-//
-//        //Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-//        List<GrantedAuthority> authorities = new ArrayList<>();
-//        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-//        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), authorities);
-//
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//        modelAndView.setViewName("redirect:/");
-//        return modelAndView;
-//    }
+
 
 
 
@@ -82,14 +55,21 @@ public class UserController {
     }
 
     @PostMapping("/public/user/create")
-    public String createUser(@ModelAttribute User user) {
+    public String createUser(@ModelAttribute User user, @RequestParam(required = false) String role) {
+        Role userRole = new Role();
+        if (role != null && !role.isEmpty()) {
+            userRole.setName(role);
+        } else {
+            userRole.setName("ROLE_USER");
+        }
 
-        System.out.println("Received user: " + user);
+        userService.assignRoleToUser(user, userRole);
 
-        user.setRole(User.Role.USER);
         userService.saveUser(user);
         return "redirect:/";
     }
+
+
 
     @GetMapping("/public/user/profileUser")
     public ModelAndView profileUser(@RequestParam(required = false) Long id) {
@@ -135,7 +115,7 @@ public class UserController {
 
     @PostMapping("/public/user/update")
     public ModelAndView updateUser(@ModelAttribute User updatedUser) {
-        return userService.updateUser(updatedUser.getUserId(), updatedUser);
+        return userService.updateUser(updatedUser.getId(), updatedUser);
     }
 
 }
